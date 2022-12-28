@@ -29,18 +29,14 @@ Reader::~Reader()
 
 void Reader::loadFile(std::string filename)
 {
-    std::ifstream in;
-    in.open(filename);
+    std::ifstream in(filename);
+    std::stringstream ss;
     if (in.fail())
         this->is_fail = true;
     else
     {
-        while (in.eof())
-        {
-            char c;
-            in.get(c);
-            this->file_content+=c;
-        }
+        ss << in.rdbuf();
+        this->file_content = ss.str();
     }
 }
 
