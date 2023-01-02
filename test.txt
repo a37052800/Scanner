@@ -1,0 +1,19 @@
+-30 (81) (-123) (-144 for xxx yyy
+-330.15  (-15.26.)
+12.23.34
+--123 -(-21) for--
+21+35 55++
+#  include <stdio.h
+#include<iostream>
+#  include <!qa_*.h>
+int i, k_123, ms00__, *id;
+i=123; k_123--;
+ms00__>=*id;
+&qwe00=55
+&ms00__ =*id;
+#include<stdio.h>
+int i, k, m, *id;
+for (i = 1; i < 10; i++) {
+k = k + i;
+m = 100 - m;
+} %d %c %%f \n\H\\
