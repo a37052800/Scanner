@@ -1,4 +1,5 @@
 #include "uselib.h"
+
 enum class token_type
 {
     Reserved_word,
@@ -74,7 +75,6 @@ std::string token_type_toString(token_type type)
     case token_type::NUL:
         return "NUL";
         break;
-
     default:
         return "error";
         break;

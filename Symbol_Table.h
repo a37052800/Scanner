@@ -11,6 +11,7 @@ public:
     void insert(std::string);
     bool exist(std::string);
 };
+
 void Symbol_Table::insert(std::string str)
 {
     this->set.insert(str);

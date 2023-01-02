@@ -5,7 +5,9 @@
 #include "Symbol_Table.h"
 
 Symbol_Table symbol_table;
+
 class Scanner;
+
 class Scanner_State
 {
 public:
@@ -80,6 +82,7 @@ public:
     Token getToken();
     void setState(Scanner_State *);
 };
+
 Scanner::Scanner(std::string filename)
 {
     this->reader.loadFile(filename);
@@ -91,14 +94,14 @@ Scanner::~Scanner()
 {
     delete this->state;
 }
-Token Scanner::getToken()
-{
-    return state->getToken(this);
-}
 void Scanner::setState(Scanner_State *new_state)
 {
     delete this->state;
     this->state = new_state;
+}
+Token Scanner::getToken()
+{
+    return state->getToken(this);
 }
 Token NORMAL_STATE::getToken(Scanner *scanner)
 {
@@ -278,7 +281,7 @@ Token DEFINE_STATE::getToken(Scanner *scanner)
         str.clear();
         while (Regex_Checker::regMatch(scanner->reader.peek(), "[A-Za-z0-9_]"))
             str += scanner->reader.getChar();
-        if(Regex_Checker(str).getType()==regex_type::RESERVED_WORD)
+        if (Regex_Checker(str).getType() == regex_type::RESERVED_WORD)
         {
             scanner->setState(new NORMAL_STATE());
             return Token(str, token_type::Reserved_word);
@@ -436,7 +439,7 @@ Token PRINT_STATE::getToken(Scanner *scanner)
                     temp_str += scanner->reader.getChar();
                 if (scanner->reader.peek() != '"')
                     scanner->setState(new NORMAL_STATE());
-                for(int i=0;i<temp_str.size();i++)
+                for (int i = 0; i < temp_str.size(); i++)
                     scanner->reader.back();
             }
             return Token(temp_char, token_type::Bracket);

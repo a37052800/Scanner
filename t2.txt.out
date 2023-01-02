@@ -1,0 +1,106 @@
+1.	token < belongs to comparator
+2.	token stdio belongs to undefined token
+3.	token .h> belongs to skipped token
+4.	token int belongs to reserved word
+5.	token ia belongs to identifier
+6.	token , belongs to punctuation
+7.	token *ie belongs to pointer
+8.	token , belongs to punctuation
+9.	token forif belongs to identifier
+10.	token ; belongs to punctuation
+11.	token char belongs to reserved word
+12.	token ca belongs to identifier
+13.	token ; belongs to punctuation
+14.	token ia belongs to identifier
+15.	token = belongs to operator
+16.	token ( belongs to bracket
+17.	token *ie belongs to pointer
+18.	token ) belongs to bracket
+19.	token + belongs to operator
+20.	token ib belongs to undefined token
+21.	token ; ia = ia * 2; belongs to skipped token
+22.	token ca belongs to identifier
+23.	token = belongs to operator
+24.	token 'A' belongs to character
+25.	token ; belongs to punctuation
+26.	token whilefor belongs to undefined token
+27.	token  (ia<3) forif = forif + 1; belongs to skipped token
+28.	token sCAnf belongs to reserved word
+29.	token ( belongs to bracket
+30.	token " belongs to punctuation
+31.	token %c belongs to format specifier
+32.	token " belongs to punctuation
+33.	token , belongs to punctuation
+34.	token & belongs to operator
+35.	token cb belongs to undefined token
+36.	token ); belongs to skipped token
+37.	token ia belongs to identifier
+38.	token = belongs to operator
+39.	token * belongs to operator
+40.	token forif belongs to identifier
+41.	token + belongs to operator
+42.	token (-2) belongs to number
+43.	token ; belongs to punctuation
+44.	token ia belongs to identifier
+45.	token = belongs to operator
+46.	token 5 belongs to number
+47.	token * belongs to operator
+48.	token ie belongs to undefined token
+49.	token ; belongs to skipped token
+
+Total: 49 tokens
+
+Reserved word: 3
+char
+int
+sCAnf
+
+Identifier: 3
+ca (x2)
+forif (x2)
+ia (x4)
+
+Character: 1
+'A'
+
+Number: 2
+(-2)
+5
+
+Pointer: 1
+*ie (x2)
+
+Bracket: 2
+( (x2)
+)
+
+Operator: 4
+&
+* (x2)
++ (x2)
+= (x4)
+
+Comparator: 1
+<
+
+Punctuation: 3
+" (x2)
+, (x3)
+; (x4)
+
+Format specifier: 1
+%c
+
+Undefined token: 5
+cb
+ib
+ie
+stdio
+whilefor
+
+Skipped token: 5
+ (ia<3) forif = forif + 1;
+);
+.h>
+;
+; ia = ia * 2;

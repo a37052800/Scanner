@@ -1,4 +1,5 @@
 #include "uselib.h"
+
 enum class regex_type
 {
     ALPHA,
@@ -9,14 +10,15 @@ enum class regex_type
     UNKNOWN,
     RESERVED_WORD,
 };
+
 class Regex_Checker
 {
 private:
     std::string text;
 
 public:
-    Regex_Checker(std::string);
-    Regex_Checker(char);
+    Regex_Checker(std::string str) { this->text = str; };
+    Regex_Checker(char c) { this->text = c; };
     regex_type getType();
     static bool regMatch(char c, std::string regex)
     {
@@ -37,7 +39,7 @@ public:
             return std::regex_match(ch, std::regex(regex, std::regex::icase));
             break;
         default:
-            std::cout<<"undefined flag\n";
+            std::cout << "undefined flag\n";
             exit(1);
             break;
         }
@@ -57,21 +59,13 @@ public:
             return std::regex_match(str, std::regex(regex, std::regex::icase));
             break;
         default:
-            std::cout<<"undefined flag\n";
+            std::cout << "undefined flag\n";
             exit(1);
             break;
         }
     }
 };
 
-Regex_Checker::Regex_Checker(std::string str)
-{
-    this->text = str;
-}
-Regex_Checker::Regex_Checker(char c)
-{
-    this->text = c;
-}
 regex_type Regex_Checker::getType()
 {
     if (this->text.size() == 1)
@@ -84,7 +78,7 @@ regex_type Regex_Checker::getType()
             return regex_type::UNDERLINE;
         else if (std::regex_match(this->text, std::regex("[ \n$]")))
             return regex_type::IGNORE;
-        else if (std::regex_match(this->text, std::regex("[ -#%--/:-\?[-^\{-}]")))
+        else if (std::regex_match(this->text, std::regex("[ -#%--/:-\?[-^{-}]")))
             return regex_type::MARK;
         else
             return regex_type::UNKNOWN;
