@@ -11,12 +11,13 @@ ostream &operator<<(ostream &os, const token_type &type)
 
 int main(int argc, char const *argv[])
 {
-    Scanner scanner = Scanner("test.txt");
+    Scanner scanner = Scanner("t3.txt");
+    int i = 1;
     while (!scanner.reader.eof())
     {
         Token token = scanner.getToken();
         if (token.getType() != token_type::NUL)
-            cout << token.getText() << "|" << token.getType() << '\n';
+            cout << i++ << ". " << token.getText() << " | " << token.getType() << '\n';
     }
     return 0;
 }

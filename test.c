@@ -1,6 +1,9 @@
 #include<stdio.h>
 int main()
 {
+    int h,
+    k,l='j';
     printf( 
-         "hello");
+         "he%c(ll$o"
+         ,l);
 }
