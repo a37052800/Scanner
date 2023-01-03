@@ -243,7 +243,7 @@ Token IDENTIFY_STATE::getToken(Scanner *scanner)
             scanner->setState(new DEFINE_STATE());
         else if (Regex_Checker::regMatch(str, "(printf)|(scanf)", 1))
         {
-            while (Regex_Checker::regMatch(scanner->reader.peek(), "[ \n]"))
+            while (Regex_Checker::regMatch(scanner->reader.peek(), "[ \r\n]"))
                 scanner->reader.getChar();
             if (scanner->reader.peek() == '(')
                 scanner->setState(new PRINT_STATE());
@@ -429,13 +429,13 @@ Token PRINT_STATE::getToken(Scanner *scanner)
         {
         case '(':
             temp_char = scanner->reader.getChar();
-            while (Regex_Checker::regMatch(scanner->reader.peek(), "[ \n]"))
+            while (Regex_Checker::regMatch(scanner->reader.peek(), "[ \r\n]"))
                 scanner->reader.getChar();
             if (scanner->reader.peek() == '"')
             {
                 temp_str.clear();
                 temp_str = scanner->reader.getChar();
-                while (Regex_Checker::regMatch(scanner->reader.peek(), "[^\n\"]"))
+                while (Regex_Checker::regMatch(scanner->reader.peek(), "[^\r\n\"]"))
                     temp_str += scanner->reader.getChar();
                 if (scanner->reader.peek() != '"')
                     scanner->setState(new NORMAL_STATE());
@@ -446,7 +446,7 @@ Token PRINT_STATE::getToken(Scanner *scanner)
             break;
         case '"':
             temp_char = scanner->reader.getChar();
-            while (Regex_Checker::regMatch(scanner->reader.peek(), "[ \n]"))
+            while (Regex_Checker::regMatch(scanner->reader.peek(), "[ \r\n]"))
                 scanner->reader.getChar();
             if (Regex_Checker::regMatch(scanner->reader.peek(), "[,)]"))
                 scanner->setState(new NORMAL_STATE());
@@ -482,7 +482,7 @@ Token PRINT_STATE::getToken(Scanner *scanner)
         }
     default:
         temp_str.clear();
-        while (Regex_Checker::regMatch(scanner->reader.peek(), "[^ \n\"%\\\\$]"))
+        while (Regex_Checker::regMatch(scanner->reader.peek(), "[^ \r\n\"%\\\\$]"))
             temp_str += scanner->reader.getChar();
         return Token(temp_str, token_type::Printed_token);
     }

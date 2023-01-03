@@ -76,7 +76,7 @@ regex_type Regex_Checker::getType()
             return regex_type::NUMBER;
         else if (std::regex_match(this->text, std::regex("_")))
             return regex_type::UNDERLINE;
-        else if (std::regex_match(this->text, std::regex("[ \n$]")))
+        else if (std::regex_match(this->text, std::regex("[ \r\n$]")))
             return regex_type::IGNORE;
         else if (std::regex_match(this->text, std::regex("[ -#%--/:-\?[-^{-}]")))
             return regex_type::MARK;

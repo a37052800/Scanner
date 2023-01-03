@@ -80,7 +80,7 @@ std::string Reader::getLine()
     std::string str;
     while (!this->is_eof)
     {
-        if ((this->peek() == '\n') || (this->peek() == '$'))
+        if ((this->peek() == '\n') || (this->peek() == '$') || (this->peek() == '\r'))
         {
             this->getChar();
             break;
