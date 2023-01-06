@@ -9,7 +9,7 @@ private:
     std::string file_content;
 
 public:
-    Reader(std::string filename) {this->loadFile(filename);};
+    Reader(std::string filename) { this->loadFile(filename); };
     Reader();
     ~Reader(){};
     void loadFile(std::string filename);
@@ -56,7 +56,7 @@ char Reader::peek()
 }
 void Reader::back()
 {
-    if (this->file_content[--this->current_index]=='\n')
+    if (this->file_content[--this->current_index] == '\n')
         this->current_line--;
 }
 char Reader::getChar()
@@ -66,7 +66,7 @@ char Reader::getChar()
         char c = this->file_content[this->current_index++];
         if (c == '\n')
             this->current_line++;
-        if (c == '\0')
+        if (c == '\0' || (c == '$'))
         {
             this->is_eof = true;
             return '$';

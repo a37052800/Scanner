@@ -119,7 +119,6 @@ Token NORMAL_STATE::getToken(Scanner *scanner)
         return scanner->getToken();
         break;
     case regex_type::IGNORE:
-        // std::cout<<"ignore:"<<(int)reader->peek()<<'\n'; //test
         if (reader->peek() == '$')
         {
             scanner->setState(new EOF_STATE());
@@ -221,7 +220,6 @@ Token NORMAL_STATE::getToken(Scanner *scanner)
         }
         break;
     case regex_type::UNKNOWN:
-        // std::cout<<"unknow:"<<(int)reader->peek()<<'\n'; //test
         scanner->setState(new SKIP_STATE);
         return Token(reader->getChar(), token_type::Undefined_token);
         break;

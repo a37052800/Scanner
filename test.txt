@@ -30,3 +30,9 @@ whilefor (ia<3) forif = forif + 1;
 sCAnf("%c", &cb);
 ia = *forif + (-2);
 ia = 5 * ie;
+      opkadw
+         for(int i =0;i<20;i++)
+   {
+            printf  ("%d%d");
+       };    while
+$#%^&(dwd)

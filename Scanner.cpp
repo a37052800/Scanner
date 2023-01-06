@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
     }
     string filename(argv[1]);
     Scanner scanner = Scanner(filename);
-    ofstream fout(filename + ".out");
+    ofstream fout("scanner_" + filename);
     if (fout.fail())
     {
         cout << "Create output file fail\n";

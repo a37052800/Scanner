@@ -11,7 +11,7 @@ ostream &operator<<(ostream &os, const token_type &type)
 
 int main(int argc, char const *argv[])
 {
-    Scanner scanner = Scanner("t3.txt");
+    Scanner scanner = Scanner("test.txt");
     int i = 1;
     while (!scanner.reader.eof())
     {
