@@ -18,14 +18,26 @@ int main(int argc, char const *argv[])
         cout << "Please enter the correct argument\n";
         return 1;
     }
-    string filename(argv[1]);
-    Scanner scanner = Scanner(filename);
-    ofstream fout("scanner_" + filename);
+    string Path(argv[1]);
+    Scanner scanner = Scanner(Path);
+    string fileName, filePath;
+    bool name = true;
+    for (int i = Path.size() - 1; i >= 0; i--)
+    {
+        if (Path[i] == '/')
+            name = false;
+        if (name)
+            fileName = Path[i] + fileName;
+        else
+            filePath = Path[i] + filePath;
+    }
+    ofstream fout(filePath + "scanner_" + fileName);
     if (fout.fail())
     {
         cout << "Create output file fail\n";
         return 1;
     }
+    cout << "Create output file in \"" << filePath + "scanner_" + fileName << "\"\n";
     map<string, int> token_list[16];
     int count = 0;
     while (!scanner.reader.eof())
@@ -46,16 +58,19 @@ int main(int argc, char const *argv[])
         int size = token_list[i].size();
         if (size == 0)
             continue;
+        int count = 0;
+        for (const auto &element : token_list[i])
+            count += element.second;
         string type_name = token_type_toString((token_type)i);
         type_name[0] = toupper(type_name[0]);
         fout << '\n'
-             << type_name << ": " << size << '\n';
-        for(const auto& element :token_list[i])
+             << type_name << ": " << count << '\n';
+        for (const auto &element : token_list[i])
         {
-            fout<<element.first;
-            if(element.second>1)
-                fout<<" (x"<<element.second<<")";
-            fout<<'\n';
+            fout << element.first;
+            if (element.second > 1)
+                fout << " (x" << element.second << ")";
+            fout << '\n';
         }
     }
     fout.close();

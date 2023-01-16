@@ -87,7 +87,7 @@ regex_type Regex_Checker::getType()
     {
         if ((std::regex_match(this->text, std::regex("(include)|(main)|(char)|(int)|(float)|(if)|(else)|(elseif)|(for)|(while)|(do)|(return)|(switch)|(case)|(printf)|(scanf)", std::regex::icase))))
             return regex_type::RESERVED_WORD;
-        else if (std::regex_match(this->text, std::regex("([0-9]+(.[0-9]+)?)|(-[0-9]+(.[0-9]+)?)|([(]-[0-9]+(.[0-9]+)?[)])|()")))
+        else if (std::regex_match(this->text, std::regex("(-?[0-9]+([.][0-9]+)?)|([(][ ]*-[0-9]+([.][0-9]+)?[ ]*[)])")))
             return regex_type::NUMBER;
         else
             return regex_type::UNKNOWN;

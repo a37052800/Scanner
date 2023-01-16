@@ -12,6 +12,7 @@ class Scanner_State
 {
 public:
     virtual Token getToken(Scanner *) = 0;
+    virtual ~Scanner_State(){};
 };
 class NORMAL_STATE : public Scanner_State
 {
@@ -75,34 +76,20 @@ private:
     Scanner_State *state = new NORMAL_STATE();
 
 public:
-    Scanner(std::string);
-    Scanner();
-    ~Scanner();
+    Scanner(std::string filename) { this->reader.loadFile(filename); };
+    Scanner(){};
+    ~Scanner() { delete this->state; };
     Reader reader;
-    Token getToken();
+    Token getToken() { return state->getToken(this); };
     void setState(Scanner_State *);
 };
 
-Scanner::Scanner(std::string filename)
-{
-    this->reader.loadFile(filename);
-}
-Scanner::Scanner()
-{
-}
-Scanner::~Scanner()
-{
-    delete this->state;
-}
 void Scanner::setState(Scanner_State *new_state)
 {
     delete this->state;
     this->state = new_state;
 }
-Token Scanner::getToken()
-{
-    return state->getToken(this);
-}
+
 Token NORMAL_STATE::getToken(Scanner *scanner)
 {
     Reader *reader = &scanner->reader;
@@ -132,21 +119,29 @@ Token NORMAL_STATE::getToken(Scanner *scanner)
         switch (reader->peek())
         {
         case '(':
+        case '[':
+        case '{':
             scanner->setState(new NUMBER_STATE());
-            return scanner->getToken();
+            return Token(reader->getChar(), token_type::Bracket);
             break;
         case ')':
-        case '[':
         case ']':
-        case '{':
         case '}':
             return Token(reader->getChar(), token_type::Bracket);
             break;
         case '-':
             scanner->setState(new NUMBER_STATE());
-            return scanner->getToken();
+            reader->getChar();
+            if (reader->peek() == '-')
+            {
+                reader->getChar();
+                return Token("--", token_type::Operator);
+            }
+            else
+                return Token("-", token_type::Operator);
             break;
         case '+':
+            scanner->setState(new NUMBER_STATE());
             reader->getChar();
             if (reader->peek() == '+')
             {
@@ -161,22 +156,18 @@ Token NORMAL_STATE::getToken(Scanner *scanner)
             scanner->setState(new POINTER_STATE());
             return scanner->getToken();
             break;
-        case '%':
-            return Token(reader->getChar(), token_type::Operator);
-            break;
-        case '\\':
-            scanner->setState(new SKIP_STATE);
-            return Token(reader->getChar(), token_type::Undefined_token);
-            break;
         case '/':
             scanner->setState(new SLASH_STATE());
             return scanner->getToken();
             break;
+        case '%':
         case '^':
         case '|':
+            scanner->setState(new NUMBER_STATE());
             return Token(reader->getChar(), token_type::Operator);
             break;
         case '=':
+            scanner->setState(new NUMBER_STATE());
             reader->getChar();
             if (reader->peek() == '=')
             {
@@ -186,9 +177,14 @@ Token NORMAL_STATE::getToken(Scanner *scanner)
             else
                 return Token('=', token_type::Operator);
             break;
+        case '\\': // Not yet supported escape character in string
+            scanner->setState(new SKIP_STATE);
+            return Token(reader->getChar(), token_type::Undefined_token);
+            break;
         case '>':
         case '<':
         case '!':
+            scanner->setState(new NUMBER_STATE());
             temp_char = reader->getChar();
             if (reader->peek() == '=')
             {
@@ -205,9 +201,12 @@ Token NORMAL_STATE::getToken(Scanner *scanner)
             return scanner->getToken();
             break;
         case ',':
-        case ';':
         case ':':
-        case '"':
+            scanner->setState(new NUMBER_STATE());
+            return Token(reader->getChar(), token_type::Punctuation);
+            break;
+        case ';':
+        case '"': // Not yet support string
             return Token(reader->getChar(), token_type::Punctuation);
             break;
         case '#':
@@ -339,7 +338,7 @@ Token SLASH_STATE::getToken(Scanner *scanner)
         return Token(str, token_type::Comment);
         break;
     default:
-        scanner->setState(new NORMAL_STATE());
+        scanner->setState(new NUMBER_STATE());
         return Token(str, token_type::Operator);
         break;
     }
@@ -366,6 +365,15 @@ Token INCLUDE_STATE::getToken(Scanner *scanner)
     switch (scanner->reader.peek())
     {
     case '#':
+        str.clear();
+        while (Regex_Checker::regMatch(scanner->reader.peek(), "[^\n\r$]"))
+            str += scanner->reader.getChar();
+        if (!Regex_Checker::regMatch(str, "#[ ]*include[ ]*<[ ]*[A-Za-z0-9_]+[.]h[ ]*>[ ]*", 1))
+        {
+            scanner->setState(new NORMAL_STATE());
+        }
+        for (int i = 0; i < str.size(); i++)
+            scanner->reader.back();
         return Token(scanner->reader.getChar(), token_type::Punctuation);
         break;
     case ' ':
@@ -377,32 +385,14 @@ Token INCLUDE_STATE::getToken(Scanner *scanner)
         str.clear();
         while (Regex_Checker(scanner->reader.peek()).getType() == regex_type::ALPHA)
             str += scanner->reader.getChar();
-        if (Regex_Checker::regMatch(str, "include", 1))
-            return Token(str, token_type::Reserved_word);
-        else
-        {
-            scanner->setState(new NORMAL_STATE());
-            for (int i = 0; i < str.size(); i++)
-                scanner->reader.back();
-            return scanner->getToken();
-        }
+        return Token(str, token_type::Reserved_word);
         break;
     case '<':
         str.clear();
-        while (Regex_Checker(scanner->reader.peek()).getType() != regex_type::IGNORE)
+        while (Regex_Checker::regMatch(scanner->reader.peek(), "[^\n\r$]"))
             str += scanner->reader.getChar();
-        if (Regex_Checker::regMatch(str, "<.+[.]h>"))
-        {
-            scanner->setState(new NORMAL_STATE());
-            return Token(str, token_type::Library_name);
-        }
-        else
-        {
-            scanner->setState(new NORMAL_STATE());
-            for (int i = 0; i < str.size(); i++)
-                scanner->reader.back();
-            return scanner->getToken();
-        }
+        scanner->setState(new NORMAL_STATE());
+        return Token(str, token_type::Library_name);
         break;
     default:
         scanner->setState(new NORMAL_STATE());
@@ -469,7 +459,7 @@ Token PRINT_STATE::getToken(Scanner *scanner)
         case '\\':
             temp_str.clear();
             temp_str = scanner->reader.getChar();
-            if (Regex_Checker(scanner->reader.peek()).getType() == regex_type::ALPHA)
+            if (Regex_Checker::regMatch(scanner->reader.peek(), "[A-Za-z0-9\\\\]"))
             {
                 temp_str += scanner->reader.getChar();
                 return Token(temp_str, token_type::Format_specifier);
@@ -489,39 +479,29 @@ Token POINTER_STATE::getToken(Scanner *scanner)
 {
     char temp = scanner->reader.getChar();
     std::string str;
-    if (temp == '*')
-        str = temp;
+    while (scanner->reader.peek() == ' ')
+        scanner->reader.getChar();
     while (Regex_Checker::regMatch(scanner->reader.peek(), "[A-Za-z0-9_]"))
         str += scanner->reader.getChar();
-    if (symbol_table.exist(str))
+    if (temp == '*' ? symbol_table.exist(temp + str) : symbol_table.exist(str))
     {
         scanner->setState(new NORMAL_STATE());
         if (temp == '*')
-            return Token(str, token_type::Pointer);
+            return Token(temp + str, token_type::Pointer);
+        else if (temp == '&')
+            return Token(temp + str, token_type::Address);
         else
         {
-            std::string combine;
-            combine = temp;
-            combine += str;
-            return Token(combine, token_type::Address);
+            std::cout << "pointer_state error\n";
+            exit(1);
         }
     }
     else
     {
-        if (temp == '*')
-        {
-            scanner->setState(new NORMAL_STATE());
-            for (int i = 0; i < str.size() - 1; i++)
-                scanner->reader.back();
-            return Token(temp, token_type::Operator);
-        }
-        else
-        {
-            scanner->setState(new NORMAL_STATE());
-            for (int i = 0; i < str.size(); i++)
-                scanner->reader.back();
-            return Token(temp, token_type::Operator);
-        }
+        scanner->setState(new NUMBER_STATE());
+        for (int i = 0; i < str.size(); i++)
+            scanner->reader.back();
+        return Token(temp, token_type::Operator);
     }
 }
 Token SKIP_STATE::getToken(Scanner *scanner)
@@ -531,92 +511,31 @@ Token SKIP_STATE::getToken(Scanner *scanner)
 }
 Token NUMBER_STATE::getToken(Scanner *scanner)
 {
+    scanner->setState(new NORMAL_STATE());
     std::string str;
+    while (Regex_Checker(scanner->reader.peek()).getType() == regex_type::IGNORE)
+        scanner->reader.getChar();
     if (scanner->reader.peek() == '(')
-    {
-        str += scanner->reader.getChar();
-        if (scanner->reader.peek() != '-')
+        while (Regex_Checker::regMatch(scanner->reader.peek(), "[- .0-9()]"))
         {
-            scanner->setState(new NORMAL_STATE());
-            return Token('(', token_type::Bracket);
-        }
-        str += scanner->reader.getChar();
-        if (Regex_Checker::regMatch(scanner->reader.peek(), "[^0-9]"))
-        {
-            scanner->setState(new NORMAL_STATE());
-            scanner->reader.back();
-            return Token('(', token_type::Bracket);
-        }
-    }
-    else if (scanner->reader.peek() == '-')
-    {
-        str += scanner->reader.getChar();
-        if (Regex_Checker::regMatch(scanner->reader.peek(), "[^0-9]"))
-        {
-            scanner->setState(new NORMAL_STATE());
-            if (scanner->reader.peek() == '-')
+            if (scanner->reader.peek() == ')')
             {
-                scanner->reader.getChar();
-                return Token("--", token_type::Operator);
+                str += scanner->reader.getChar();
+                break;
             }
-            return Token('-', token_type::Operator);
-        }
-    }
-    while (Regex_Checker::regMatch(scanner->reader.peek(), "[0-9.]"))
-    {
-        if (scanner->reader.peek() == '.')
-        {
             str += scanner->reader.getChar();
-            break;
         }
-        str += scanner->reader.getChar();
-    }
-    while (Regex_Checker::regMatch(scanner->reader.peek(), "[0-9]"))
-        str += scanner->reader.getChar();
-    if (str[0] == '(')
-    {
-        if (scanner->reader.peek() == ')')
+    else
+        while (Regex_Checker::regMatch(scanner->reader.peek(), "[-.0-9]"))
             str += scanner->reader.getChar();
-        else
-        {
-            scanner->setState(new NORMAL_STATE());
-            for (int i = 0; i < str.size() - 1; i++)
-                scanner->reader.back();
-            return Token('(', token_type::Bracket);
-        }
-    }
-    switch (Regex_Checker(str).getType())
-    {
-    case regex_type::NUMBER:
-        scanner->setState(new NORMAL_STATE());
+    if (Regex_Checker::regMatch(str, "(-?[0-9]+([.][0-9]+)?)|([(][ ]*-[0-9]+([.][0-9]+)?[ ]*[)])"))
         return Token(str, token_type::Number);
-        break;
-    case regex_type::MARK:
-        scanner->setState(new NORMAL_STATE());
-        switch (str[0])
-        {
-        case '-':
-            return Token(str[0], token_type::Operator);
-            break;
-        case '(':
-            return Token(str[0], token_type::Bracket);
-            break;
-        default:
-            std::cout << "regex error\n";
-            exit(1);
-            break;
-        }
-        break;
-    case regex_type::UNKNOWN:
-        scanner->setState(new SKIP_STATE());
-        return Token(str, token_type::Undefined_token);
-        break;
-    default:
-        std::cout << "regex error\n";
-        exit(1);
-        break;
+    else
+    {
+        for (int i = 0; i < str.size(); i++)
+            scanner->reader.back();
+        return scanner->getToken();
     }
-    return Token(scanner->reader.getLine(), token_type::Skipped_token);
 }
 Token EOF_STATE::getToken(Scanner *scanner)
 {

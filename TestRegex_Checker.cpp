@@ -3,13 +3,17 @@
 using namespace std;
 int main()
 {
-    //int i=1;
     while (true)
     {
+        cout<<">> ";
         string str;
-        cin >> str;
+        getline(cin, str);
         if (str == "exit")
             break;
+        if (Regex_Checker::regMatch(str, "[- .0-9()]", 1))
+            cout << "True\n";
+        else
+            cout << "False\n";
         switch (Regex_Checker(str).getType())
         {
         case regex_type::ALPHA:

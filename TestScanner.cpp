@@ -12,6 +12,13 @@ ostream &operator<<(ostream &os, const token_type &type)
 int main(int argc, char const *argv[])
 {
     Scanner scanner = Scanner("test.txt");
+    /* // delete state test
+    while (true)
+    {
+        scanner.setState(new NORMAL_STATE());
+        cout<<'.';
+    }
+    */
     int i = 1;
     while (!scanner.reader.eof())
     {
