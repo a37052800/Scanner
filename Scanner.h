@@ -216,6 +216,7 @@ Token NORMAL_STATE::getToken(Scanner *scanner)
         default:
             std::cout << "regex error\n";
             exit(1);
+            break;
         }
         break;
     case regex_type::UNKNOWN:
@@ -227,6 +228,7 @@ Token NORMAL_STATE::getToken(Scanner *scanner)
         exit(1);
         break;
     }
+    return Token();
 }
 Token IDENTIFY_STATE::getToken(Scanner *scanner)
 {
@@ -311,17 +313,16 @@ Token DEFINE_STATE::getToken(Scanner *scanner)
 }
 Token SLASH_STATE::getToken(Scanner *scanner)
 {
+    scanner->setState(new NORMAL_STATE());
     std::string str;
     str = scanner->reader.getChar();
     switch (scanner->reader.peek())
     {
     case '/':
-        scanner->setState(new NORMAL_STATE());
         str += scanner->reader.getLine();
         return Token(str, token_type::Comment);
         break;
     case '*':
-        scanner->setState(new NORMAL_STATE());
         while (!scanner->reader.eof())
         {
             if (scanner->reader.peek() == '*')
